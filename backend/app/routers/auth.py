@@ -15,17 +15,18 @@ def register(body: UserCreate, db: Session = Depends(get_db)) -> User:
     if existing:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
-    if body.role != UserRole.provider and (body.business_name or body.bio):
-        # Allow but ignore provider-only fields for non-providers by stripping
-        pass
-
+    is_provider = body.role == UserRole.provider
     user = User(
         email=body.email.lower(),
         hashed_password=hash_password(body.password),
         full_name=body.full_name,
         role=body.role.value,
-        business_name=body.business_name if body.role == UserRole.provider else None,
-        bio=body.bio if body.role == UserRole.provider else None,
+        business_name=body.business_name if is_provider else None,
+        bio=body.bio if is_provider else None,
+        city=body.city if is_provider else None,
+        category=body.category if is_provider else None,
+        avatar_url=body.avatar_url if is_provider else None,
+        cover_url=body.cover_url if is_provider else None,
     )
     db.add(user)
     db.commit()

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -12,7 +12,7 @@ from app.cache import (
 )
 from app.config import get_settings
 from app.db import get_db
-from app.models import Booking, BookingStatus, User, UserRole
+from app.models import Booking, BookingStatus, Service, User, UserRole
 from app.rbac import (
     assert_booking_access,
     assert_status_transition,
@@ -21,6 +21,7 @@ from app.rbac import (
     require_role,
 )
 from app.schemas import BookingCreate, BookingOut, BookingUpdate
+from app.slots import has_overlapping_booking
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -39,15 +40,31 @@ def create_booking(
     if provider is None or provider.role != UserRole.provider.value or not provider.is_active:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Provider not found")
 
+    service = db.get(Service, body.service_id)
+    if service is None or service.provider_id != body.provider_id or not service.is_active:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
+
+    start = body.start_time
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    end = start + timedelta(minutes=service.duration_minutes)
+
+    if has_overlapping_booking(db, provider_id=body.provider_id, start=start, end=end):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Time slot overlaps an existing booking",
+        )
+
     booking = Booking(
         provider_id=body.provider_id,
         customer_id=user.id,
-        service_name=body.service_name,
-        start_time=body.start_time,
-        end_time=body.end_time,
+        service_id=service.id,
+        service_name=service.name,
+        start_time=start,
+        end_time=end,
         status=BookingStatus.pending.value,
         notes=body.notes,
-        price_cents=body.price_cents,
+        price_cents=service.price_cents,
     )
     db.add(booking)
     db.commit()
@@ -85,7 +102,6 @@ def list_bookings(
         q = q.filter(Booking.customer_id == user.id)
     elif user.role == UserRole.provider.value:
         q = q.filter(Booking.provider_id == user.id)
-    # admin: unscoped
 
     if status_filter is not None:
         q = q.filter(Booking.status == status_filter)
@@ -137,6 +153,19 @@ def update_booking(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="end_time must be after start_time",
         )
+
+    if "start_time" in data or "end_time" in data:
+        if has_overlapping_booking(
+            db,
+            provider_id=booking.provider_id,
+            start=start,
+            end=end,
+            exclude_booking_id=booking.id,
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Time slot overlaps an existing booking",
+            )
 
     for field, value in data.items():
         setattr(booking, field, value)

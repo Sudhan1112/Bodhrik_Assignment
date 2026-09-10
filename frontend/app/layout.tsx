@@ -3,8 +3,8 @@ import { AppShell } from '@/components/AppShell';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Ledger — booking & review',
-  description: 'Book appointments, keep an accurate record, review real visits.',
+  title: 'Ledger — book trusted providers',
+  description: 'Discover providers, book real availability, and review visits that happened.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

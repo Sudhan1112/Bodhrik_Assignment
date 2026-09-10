@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
-# Ensure backend package root is on path when run as `python -m worker.main`
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent
 if str(_BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(_BACKEND_ROOT))
@@ -17,7 +16,7 @@ if str(_BACKEND_ROOT) not in sys.path:
 from app.cache import get_redis  # noqa: E402
 from app.config import get_settings  # noqa: E402
 from app.db import SessionLocal  # noqa: E402
-from app.models import Review  # noqa: E402
+from app.models import Review, User  # noqa: E402
 from app.queue import parse_job  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -33,6 +32,18 @@ def stub_summary(review: Review) -> str:
     return f"Rated {review.rating}/5"
 
 
+def provider_level_summary(reviews: list[Review]) -> str | None:
+    if not reviews:
+        return None
+    avg = sum(r.rating for r in reviews) / len(reviews)
+    snippets = [stub_summary(r) for r in reviews[:3]]
+    joined = "; ".join(snippets)
+    return (
+        f"Guests rate this provider {avg:.1f}/5 across {len(reviews)} visits. "
+        f"Highlights: {joined}"
+    )
+
+
 def process_job(provider_id: UUID) -> int:
     db = SessionLocal()
     try:
@@ -41,6 +52,9 @@ def process_job(provider_id: UUID) -> int:
         for review in reviews:
             review.summary = stub_summary(review)
             review.summarised_at = now
+        provider = db.get(User, provider_id)
+        if provider is not None:
+            provider.review_summary = provider_level_summary(reviews)
         db.commit()
         return len(reviews)
     finally:

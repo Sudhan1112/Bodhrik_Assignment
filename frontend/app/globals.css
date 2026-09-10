@@ -3,24 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --ink: #121c18;
-  --paper: #d5d8d2;
-  --brass: #9a6b2f;
-  --sage: #3f6b54;
-  --clay: #8c3a32;
-  --hairline: #b4b8b2;
-  --mist: #e8eae5;
+  --ink: #0f1412;
+  --ivory: #f7f5f1;
+  --teal: #0f6e56;
+  --border: #e4e0d9;
+  --muted: #5c6561;
 }
 
 html,
 body {
   color: var(--ink);
-  background: var(--paper);
+  background: var(--ivory);
   font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 *:focus-visible {
-  outline: 2px solid var(--brass);
+  outline: 2px solid var(--teal);
   outline-offset: 2px;
 }
 
@@ -34,8 +32,8 @@ body {
   }
 }
 
-@layer utilities {
-  .ledger-rule {
-    border-bottom: 1px solid var(--hairline);
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-border bg-white/80 shadow-soft;
   }
 }

@@ -1,110 +1,92 @@
-import Link from 'next/link';
-import { LedgerRow } from '@/components/LedgerRow';
-import type { Booking } from '@/lib/types';
+'use client';
 
-const SAMPLE: Booking[] = [
-  {
-    id: '1',
-    provider_id: 'p',
-    customer_id: 'c',
-    service_name: 'Initial consultation',
-    start_time: '2030-03-12T09:30:00Z',
-    end_time: '2030-03-12T10:15:00Z',
-    status: 'confirmed',
-    notes: null,
-    price_cents: 8500,
-    created_at: '',
-    updated_at: '',
-  },
-  {
-    id: '2',
-    provider_id: 'p',
-    customer_id: 'c',
-    service_name: 'Follow-up session',
-    start_time: '2030-03-14T14:00:00Z',
-    end_time: '2030-03-14T14:45:00Z',
-    status: 'pending',
-    notes: null,
-    price_cents: 6000,
-    created_at: '',
-    updated_at: '',
-  },
-  {
-    id: '3',
-    provider_id: 'p',
-    customer_id: 'c',
-    service_name: 'Colour treatment',
-    start_time: '2030-02-28T11:00:00Z',
-    end_time: '2030-02-28T12:30:00Z',
-    status: 'completed',
-    notes: null,
-    price_cents: 12000,
-    created_at: '',
-    updated_at: '',
-  },
-];
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/Button';
+import { ProviderCard } from '@/components/ProviderCard';
+import { Skeleton } from '@/components/EmptyState';
+import { listProviders } from '@/lib/api';
+import type { Provider } from '@/lib/types';
+
+const HERO =
+  'https://images.unsplash.com/photo-1521590832167-7bcbfaaae64f?w=2000&q=80';
 
 export default function HomePage() {
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listProviders({ limit: 3 })
+      .then((res) => setProviders(res.items))
+      .catch(() => setProviders([]))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div>
-      <section className="border-b border-hairline pb-12 pt-6">
-        <p className="font-display text-5xl leading-none tracking-tight sm:text-6xl">Ledger</p>
-        <p className="mt-6 max-w-xl font-sans text-base leading-relaxed text-ink/80">
-          A quiet appointment book for providers and the people who book them. Offer a time,
-          confirm the visit, keep the record straight — and review only what actually happened.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/register"
-            className="bg-ink px-5 py-2.5 font-sans text-sm text-paper transition-colors hover:bg-brass"
-          >
-            Open an account
-          </Link>
-          <Link
-            href="/login"
-            className="border border-ink px-5 py-2.5 font-sans text-sm transition-colors hover:border-brass hover:text-brass"
-          >
-            Sign in
-          </Link>
-        </div>
-      </section>
-
-      <section className="border-b border-hairline py-12">
-        <h2 className="font-display text-2xl">What a day looks like</h2>
-        <p className="mt-2 font-sans text-sm text-ink/70">
-          Example ledger rows — the same layout you will use on your dashboard.
-        </p>
-        <div className="mt-6">
-          <div className="mb-1 hidden font-sans text-xs uppercase tracking-wide text-ink/50 sm:grid sm:grid-cols-12 sm:gap-4">
-            <span className="sm:col-span-3">When</span>
-            <span className="sm:col-span-4">Service</span>
-            <span className="sm:col-span-2">Status</span>
-            <span className="sm:col-span-2">Price</span>
+      <section className="relative min-h-[88vh] overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: 'url(' + HERO + ')' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/55 to-ink/25" />
+        <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6">
+          <p className="font-display text-5xl leading-none tracking-tight text-white sm:text-7xl animate-fadeUp">
+            Ledger
+          </p>
+          <p className="mt-5 max-w-xl font-sans text-base leading-relaxed text-white/85 sm:text-lg">
+            Book the providers people trust — real availability, clear prices, and reviews tied to
+            visits that actually happened.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/explore">
+              <Button size="lg" className="bg-white text-ink hover:bg-mist">
+                Explore providers
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button size="lg" variant="secondary" className="border-white/40 bg-transparent text-white hover:border-white hover:text-white">
+                Create account
+              </Button>
+            </Link>
           </div>
-          {SAMPLE.map((b) => (
-            <LedgerRow key={b.id} booking={b} />
-          ))}
         </div>
       </section>
 
-      <section className="grid gap-10 py-12 sm:grid-cols-3">
-        <div>
-          <h3 className="font-display text-xl">Book without back-and-forth</h3>
-          <p className="mt-2 font-sans text-sm leading-relaxed text-ink/75">
-            Customers request a slot; providers confirm or cancel. The status lives in one place.
-          </p>
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-display text-3xl">Featured this week</h2>
+            <p className="mt-2 font-sans text-sm text-muted">Live from the marketplace — not placeholders.</p>
+          </div>
+          <Link href="/explore" className="font-sans text-sm text-teal hover:underline">
+            View all
+          </Link>
         </div>
-        <div>
-          <h3 className="font-display text-xl">Reviews tied to visits</h3>
-          <p className="mt-2 font-sans text-sm leading-relaxed text-ink/75">
-            A review can only be written after a booking is marked completed — no drive-by ratings.
-          </p>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {loading
+            ? [1, 2, 3].map((i) => <Skeleton key={i} className="h-64" />)
+            : providers.map((p) => <ProviderCard key={p.id} provider={p} />)}
+          {!loading && !providers.length ? (
+            <p className="font-sans text-sm text-muted sm:col-span-3">
+              No providers yet. Register as a provider to appear here.
+            </p>
+          ) : null}
         </div>
-        <div>
-          <h3 className="font-display text-xl">An accurate record</h3>
-          <p className="mt-2 font-sans text-sm leading-relaxed text-ink/75">
-            Every change is on the ledger: pending, confirmed, done, cancelled, or no-show.
-          </p>
+      </section>
+
+      <section className="border-y border-border bg-white/50">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:grid-cols-3 sm:px-6">
+          {[
+            ['Browse with intent', 'Filter by category and rating. See photos, prices, and real guest scores.'],
+            ['Book a real slot', 'Pick a service and an open time — no email ping-pong, no double booking.'],
+            ['Review the visit', 'Stars unlock only after a completed booking, so trust stays honest.'],
+          ].map(([t, d]) => (
+            <div key={t}>
+              <h3 className="font-display text-xl">{t}</h3>
+              <p className="mt-2 font-sans text-sm leading-relaxed text-muted">{d}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>

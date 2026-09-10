@@ -5,11 +5,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { clearSession, getStoredUser } from '@/lib/auth';
 import type { User } from '@/lib/types';
+import { Button } from './Button';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const marketing = pathname === '/';
 
   useEffect(() => {
     setUser(getStoredUser());
@@ -22,44 +24,57 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <header className="border-b border-hairline">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="font-display text-2xl tracking-tight">
+    <div className="min-h-screen bg-ivory text-ink">
+      <header
+        className={
+          marketing
+            ? 'absolute inset-x-0 top-0 z-20 border-b border-white/10 bg-ink/20 backdrop-blur-md'
+            : 'sticky top-0 z-20 border-b border-border bg-ivory/90 backdrop-blur'
+        }
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+          <Link
+            href="/"
+            className={
+              'font-display text-2xl tracking-tight ' + (marketing ? 'text-white' : 'text-ink')
+            }
+          >
             Ledger
           </Link>
-          <nav className="flex items-center gap-4 font-sans text-sm">
+          <nav
+            className={
+              'flex items-center gap-4 font-sans text-sm ' +
+              (marketing ? 'text-white/90' : 'text-ink')
+            }
+          >
+            <Link href="/explore" className="hover:opacity-80">
+              Explore
+            </Link>
             {user ? (
               <>
-                <Link href="/dashboard" className="hover:text-brass">
+                <Link href="/dashboard" className="hover:opacity-80">
                   Dashboard
                 </Link>
-                <span className="hidden text-ink/60 sm:inline">{user.full_name}</span>
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="text-ink/70 underline-offset-2 hover:underline"
-                >
+                <button type="button" onClick={logout} className="hover:opacity-80">
                   Sign out
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="hover:text-brass">
+                <Link href="/login" className="hover:opacity-80">
                   Sign in
                 </Link>
-                <Link
-                  href="/register"
-                  className="bg-ink px-3 py-1.5 text-paper transition-colors hover:bg-brass"
-                >
-                  Register
+                <Link href="/register">
+                  <Button size="sm" className={marketing ? 'bg-white text-ink hover:bg-mist' : ''}>
+                    Get started
+                  </Button>
                 </Link>
               </>
             )}
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</main>
+      <main className={marketing ? '' : 'mx-auto max-w-6xl px-4 py-8 sm:px-6'}>{children}</main>
     </div>
   );
 }

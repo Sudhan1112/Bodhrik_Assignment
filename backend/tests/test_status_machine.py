@@ -1,17 +1,28 @@
-from tests.conftest import auth_header, login, make_booking, register
+from uuid import UUID
+
+from tests.conftest import (
+    auth_header,
+    create_service,
+    login,
+    make_booking,
+    register,
+    set_weekday_hours,
+)
 
 
-def _pending_booking(client):
+def _pending_booking(client, db_session):
     p = register(client, "p@example.com", "provider")
     register(client, "c@example.com", "customer")
     p_tok = login(client, "p@example.com")["access_token"]
     c_tok = login(client, "c@example.com")["access_token"]
-    booking = make_booking(client, c_tok, p["id"])
-    return p, p_tok, c_tok, booking
+    svc = create_service(client, p_tok)
+    set_weekday_hours(db_session, UUID(p["id"]), weekday=1)
+    booking = make_booking(client, c_tok, p["id"], svc["id"])
+    return p, p_tok, c_tok, booking, svc
 
 
-def test_customer_can_cancel_pending(client):
-    _, _, c_tok, booking = _pending_booking(client)
+def test_customer_can_cancel_pending(client, db_session):
+    _, _, c_tok, booking, _ = _pending_booking(client, db_session)
     r = client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(c_tok),
@@ -21,8 +32,8 @@ def test_customer_can_cancel_pending(client):
     assert r.json()["status"] == "cancelled"
 
 
-def test_provider_can_confirm_pending(client):
-    _, p_tok, _, booking = _pending_booking(client)
+def test_provider_can_confirm_pending(client, db_session):
+    _, p_tok, _, booking, _ = _pending_booking(client, db_session)
     r = client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
@@ -32,8 +43,8 @@ def test_provider_can_confirm_pending(client):
     assert r.json()["status"] == "confirmed"
 
 
-def test_customer_cannot_confirm(client):
-    _, _, c_tok, booking = _pending_booking(client)
+def test_customer_cannot_confirm(client, db_session):
+    _, _, c_tok, booking, _ = _pending_booking(client, db_session)
     r = client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(c_tok),
@@ -42,8 +53,8 @@ def test_customer_cannot_confirm(client):
     assert r.status_code == 403
 
 
-def test_customer_cannot_complete(client):
-    _, p_tok, c_tok, booking = _pending_booking(client)
+def test_customer_cannot_complete(client, db_session):
+    _, p_tok, c_tok, booking, _ = _pending_booking(client, db_session)
     client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
@@ -57,8 +68,8 @@ def test_customer_cannot_complete(client):
     assert r.status_code == 403
 
 
-def test_customer_cannot_cancel_confirmed(client):
-    _, p_tok, c_tok, booking = _pending_booking(client)
+def test_customer_cannot_cancel_confirmed(client, db_session):
+    _, p_tok, c_tok, booking, _ = _pending_booking(client, db_session)
     client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
@@ -72,8 +83,8 @@ def test_customer_cannot_cancel_confirmed(client):
     assert r.status_code == 403
 
 
-def test_customer_cannot_no_show(client):
-    _, p_tok, c_tok, booking = _pending_booking(client)
+def test_customer_cannot_no_show(client, db_session):
+    _, p_tok, c_tok, booking, _ = _pending_booking(client, db_session)
     client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
@@ -87,8 +98,8 @@ def test_customer_cannot_no_show(client):
     assert r.status_code == 403
 
 
-def test_provider_can_complete_and_no_show_and_cancel_confirmed(client):
-    _, p_tok, c_tok, booking = _pending_booking(client)
+def test_provider_can_complete_and_no_show_and_cancel_confirmed(client, db_session):
+    _, p_tok, c_tok, booking, svc = _pending_booking(client, db_session)
     client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
@@ -101,18 +112,15 @@ def test_provider_can_complete_and_no_show_and_cancel_confirmed(client):
     )
     assert r.status_code == 200
 
-    # fresh booking for no_show
     p = register(client, "p2@example.com", "provider")
     register(client, "c2@example.com", "customer")
     p2 = login(client, "p2@example.com")["access_token"]
     c2 = login(client, "c2@example.com")["access_token"]
-    b2 = make_booking(
-        client,
-        c2,
-        p["id"],
-        start="2030-03-15T10:00:00Z",
-        end="2030-03-15T11:00:00Z",
-    )
+    svc2 = create_service(client, p2)
+    set_weekday_hours(db_session, UUID(p["id"]), weekday=4)  # 2030-03-15 Friday
+    set_weekday_hours(db_session, UUID(p["id"]), weekday=0)  # 2030-04-15 Monday
+
+    b2 = make_booking(client, c2, p["id"], svc2["id"], start="2030-03-15T10:00:00Z")
     client.patch(f"/bookings/{b2['id']}", headers=auth_header(p2), json={"status": "confirmed"})
     r = client.patch(
         f"/bookings/{b2['id']}",
@@ -122,13 +130,7 @@ def test_provider_can_complete_and_no_show_and_cancel_confirmed(client):
     assert r.status_code == 200
     assert r.json()["status"] == "no_show"
 
-    b3 = make_booking(
-        client,
-        c2,
-        p["id"],
-        start="2030-04-15T10:00:00Z",
-        end="2030-04-15T11:00:00Z",
-    )
+    b3 = make_booking(client, c2, p["id"], svc2["id"], start="2030-04-15T10:00:00Z")
     client.patch(f"/bookings/{b3['id']}", headers=auth_header(p2), json={"status": "confirmed"})
     r = client.patch(
         f"/bookings/{b3['id']}",
@@ -138,9 +140,8 @@ def test_provider_can_complete_and_no_show_and_cancel_confirmed(client):
     assert r.status_code == 200
 
 
-def test_illegal_edge_is_409(client):
-    _, p_tok, _, booking = _pending_booking(client)
-    # pending -> completed is illegal
+def test_illegal_edge_is_409(client, db_session):
+    _, p_tok, _, booking, _ = _pending_booking(client, db_session)
     r = client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
@@ -148,7 +149,6 @@ def test_illegal_edge_is_409(client):
     )
     assert r.status_code == 409
 
-    # terminal: complete then try cancel
     client.patch(
         f"/bookings/{booking['id']}",
         headers=auth_header(p_tok),
