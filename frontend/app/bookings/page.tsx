@@ -5,13 +5,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { BookingCard, BookingCardSkeleton } from '@/components/BookingCard';
 import { EmptyState, ErrorBanner, Skeleton } from '@/components/EmptyState';
+import { RecentlyViewedRow } from '@/components/ProviderCard';
 import { getProvider, listBookings, listProviderReviews, ApiError } from '@/lib/api';
 import { getStoredUser, getToken } from '@/lib/auth';
 import {
   filterBookingsByTab,
   type BookingTab,
 } from '@/lib/bookingLifecycle';
-import type { Booking, User } from '@/lib/types';
+import { getRecentlyViewedIds } from '@/lib/discoveryStorage';
+import type { Booking, ProviderDetail, User } from '@/lib/types';
 
 const TABS: { id: BookingTab; label: string }[] = [
   { id: 'upcoming', label: 'Upcoming' },
@@ -50,6 +52,7 @@ function BookingsInner() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [providerNames, setProviderNames] = useState<Record<string, string>>({});
   const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+  const [recentProviders, setRecentProviders] = useState<ProviderDetail[]>([]);
   const [tab, setTab] = useState<BookingTab>(initialTab);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +106,18 @@ function BookingsInner() {
       }
       setReviewedIds(reviewIds);
       setError(null);
+
+      const recentIds = getRecentlyViewedIds().slice(0, 3);
+      if (recentIds.length) {
+        const recent = await Promise.all(
+          recentIds.map((id) => getProvider(id).catch(() => null)),
+        );
+        setRecentProviders(
+          recent.filter((p): p is ProviderDetail => p != null),
+        );
+      } else {
+        setRecentProviders([]);
+      }
     } catch (err) {
       setError(
         err instanceof ApiError
@@ -205,12 +220,23 @@ function BookingsInner() {
 
       <div className="mt-6 space-y-3" role="tabpanel" aria-labelledby={'tab-' + tab}>
         {filtered.length === 0 ? (
-          <EmptyState
-            title={EMPTY[tab].title}
-            description={EMPTY[tab].description}
-            actionHref="/explore"
-            actionLabel="Explore providers"
-          />
+          <div className="space-y-8">
+            <EmptyState
+              title={EMPTY[tab].title}
+              description={
+                tab === 'upcoming' && recentProviders.length
+                  ? 'Looking for something else?'
+                  : EMPTY[tab].description
+              }
+              actionHref="/explore"
+              actionLabel={
+                tab === 'upcoming' ? 'Explore services' : 'Explore providers'
+              }
+            />
+            {tab === 'upcoming' && recentProviders.length ? (
+              <RecentlyViewedRow providers={recentProviders} />
+            ) : null}
+          </div>
         ) : (
           filtered.map((b) => (
             <BookingCard

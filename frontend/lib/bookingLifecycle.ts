@@ -62,27 +62,27 @@ export function statusHeadline(status: BookingStatus): { title: string; detail: 
     case 'pending':
       return {
         title: 'Appointment requested',
-        detail: 'Waiting for provider confirmation.',
+        detail: 'Waiting for confirmation',
       };
     case 'confirmed':
       return {
         title: 'Appointment confirmed',
-        detail: 'Your appointment is scheduled.',
+        detail: 'Confirmed — see details',
       };
     case 'completed':
       return {
         title: 'Appointment completed',
-        detail: 'Review your experience or book again.',
+        detail: 'Appointment completed',
       };
     case 'cancelled':
       return {
         title: 'Appointment cancelled',
-        detail: 'This appointment will not take place.',
+        detail: 'This appointment will not take place',
       };
     case 'no_show':
       return {
         title: 'Marked as no-show',
-        detail: 'This appointment was closed as a no-show.',
+        detail: 'Marked as no-show',
       };
     default:
       return { title: 'Appointment', detail: '' };

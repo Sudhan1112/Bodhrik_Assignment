@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar } from '@/components/Avatar';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { Button } from '@/components/Button';
+import { CoverMedia } from '@/components/CoverMedia';
 import { DateSelector } from '@/components/DateSelector';
 import { EmptyState, ErrorBanner, Skeleton } from '@/components/EmptyState';
 import { ServiceRow } from '@/components/ProviderCard';
@@ -604,11 +605,12 @@ function ProviderPageInner() {
       </Link>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-5 lg:items-start">
-        <div
-          className="aspect-[16/10] overflow-hidden rounded-card bg-subtle bg-cover bg-center lg:col-span-3 lg:aspect-[2/1]"
-          style={{
-            backgroundImage: provider.cover_url ? 'url(' + provider.cover_url + ')' : undefined,
-          }}
+        <CoverMedia
+          coverUrl={provider.cover_url}
+          title={title}
+          category={provider.category}
+          className="rounded-card lg:col-span-3"
+          aspectClass="aspect-[16/10] lg:aspect-[2/1]"
         />
         <div className="lg:col-span-2">
           <div className="flex items-start gap-3">
@@ -628,7 +630,14 @@ function ProviderPageInner() {
             <Button type="button" onClick={scrollToBook}>
               Book appointment
             </Button>
-            <Button type="button" variant="secondary" onClick={onSave}>
+            <Button
+              type="button"
+              variant={saved ? 'primary' : 'secondary'}
+              onClick={onSave}
+              aria-pressed={saved}
+              aria-label={saved ? 'Remove from saved' : 'Save provider'}
+            >
+              <span aria-hidden>{saved ? '♥' : '♡'}</span>
               {saved ? 'Saved' : 'Save'}
             </Button>
             <Button type="button" variant="ghost" onClick={onCompare}>

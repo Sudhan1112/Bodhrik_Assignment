@@ -2,8 +2,8 @@ import type { BookingStatus } from '@/lib/types';
 
 const STYLES: Record<BookingStatus, string> = {
   pending: 'bg-amber/10 text-amber ring-amber/20',
-  confirmed: 'bg-teal-soft text-teal ring-teal/20',
-  completed: 'bg-subtle text-ink ring-border',
+  confirmed: 'bg-teal-soft text-ink ring-teal/25',
+  completed: 'bg-teal-soft/80 text-ink ring-teal/20',
   cancelled: 'bg-coral/10 text-coral ring-coral/20',
   no_show: 'bg-coral/10 text-coral ring-coral/20',
 };
@@ -26,7 +26,7 @@ export function Badge({
 }) {
   const tones = {
     neutral: 'bg-subtle text-ink ring-border',
-    teal: 'bg-teal-soft text-teal ring-teal/20',
+    teal: 'bg-teal-soft text-ink ring-teal/25',
     amber: 'bg-amber/10 text-amber ring-amber/20',
     coral: 'bg-coral/10 text-coral ring-coral/20',
   };

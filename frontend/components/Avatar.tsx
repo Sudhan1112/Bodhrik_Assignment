@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export function Avatar({
   name,
   src,
@@ -9,6 +13,7 @@ export function Avatar({
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }) {
+  const [broken, setBroken] = useState(false);
   const sizes = {
     sm: 'h-8 w-8 text-caption',
     md: 'h-10 w-10 text-small',
@@ -21,28 +26,35 @@ export function Avatar({
     .map((p) => p[0]?.toUpperCase() || '')
     .join('');
 
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
+
+  const showImage = Boolean(src) && !broken;
+
   return (
     <div
       className={
-        'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-subtle font-sans font-semibold text-ink ring-1 ring-border ' +
+        'relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-subtle font-sans font-semibold text-ink ring-1 ring-border ' +
         sizes[size] +
         ' ' +
         className
       }
-      style={
-        src
-          ? {
-              backgroundImage: 'url(' + src + ')',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }
-          : undefined
-      }
-      role={src ? 'img' : undefined}
-      aria-label={src ? name : undefined}
-      aria-hidden={!src}
+      role={showImage ? 'img' : undefined}
+      aria-label={showImage ? name : undefined}
+      aria-hidden={!showImage}
     >
-      {!src ? initials || '?' : null}
+      {showImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src!}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={() => setBroken(true)}
+        />
+      ) : (
+        initials || '?'
+      )}
     </div>
   );
 }

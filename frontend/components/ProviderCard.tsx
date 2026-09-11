@@ -15,6 +15,7 @@ import { taxonomyTitleForProviderCategory } from '@/lib/taxonomy';
 import type { Provider, Service } from '@/lib/types';
 import { Avatar } from './Avatar';
 import { Button } from './Button';
+import { CoverMedia } from './CoverMedia';
 import { Rating } from './StarRating';
 import { useToast } from './Toast';
 
@@ -96,16 +97,12 @@ export function ProviderCard({
   return (
     <article className="group card overflow-hidden transition-shadow duration-med hover:shadow-lift">
       <Link href={'/providers/' + provider.id} className="block">
-        <div className="relative aspect-[16/10] overflow-hidden bg-subtle">
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-med group-hover:scale-[1.03]"
-            style={{
-              backgroundImage: provider.cover_url
-                ? 'url(' + provider.cover_url + ')'
-                : undefined,
-            }}
+        <div className="relative">
+          <CoverMedia
+            coverUrl={provider.cover_url}
+            title={title}
+            category={provider.category}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/30 to-transparent" />
           <div className="absolute bottom-3 left-3">
             <Avatar name={title} src={provider.avatar_url} size="md" />
           </div>
@@ -140,7 +137,14 @@ export function ProviderCard({
         <Button size="sm" variant={inCompare ? 'primary' : 'ghost'} onClick={onCompare}>
           Compare
         </Button>
-        <Button size="sm" variant={saved ? 'primary' : 'ghost'} onClick={onSave}>
+        <Button
+          size="sm"
+          variant={saved ? 'primary' : 'ghost'}
+          onClick={onSave}
+          aria-pressed={saved}
+          aria-label={saved ? 'Remove from saved' : 'Save provider'}
+        >
+          <span aria-hidden>{saved ? '♥' : '♡'}</span>
           {saved ? 'Saved' : 'Save'}
         </Button>
       </div>

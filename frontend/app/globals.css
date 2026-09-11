@@ -35,14 +35,14 @@
   --canvas: #121212;
   --subtle: #1c1c1c;
   --surface: #181818;
-  --teal: #3d9b82;
-  --teal-dark: #2f826c;
-  --teal-soft: #14352c;
+  --teal: #5eb89a;
+  --teal-dark: #4aa687;
+  --teal-soft: #0f2a23;
   --border: #2e2e2e;
-  --muted: #a3a3a0;
+  --muted: #b0b0ac;
   --coral: #e5736a;
-  --amber: #d4a017;
-  --sage: #7a9e8c;
+  --amber: #e0b040;
+  --sage: #8aaf9c;
   --shadow-ink: 0, 0, 0;
   color-scheme: dark;
 }

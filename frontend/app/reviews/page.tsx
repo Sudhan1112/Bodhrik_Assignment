@@ -9,6 +9,7 @@ import { StarRating } from '@/components/StarRating';
 import {
   ApiError,
   formatWhen,
+  getProvider,
   listBookings,
   listProviderReviews,
 } from '@/lib/api';
@@ -20,6 +21,7 @@ export default function ReviewsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [toWrite, setToWrite] = useState<Booking[]>([]);
   const [submitted, setSubmitted] = useState<Array<{ booking: Booking; review: Review }>>([]);
+  const [providerNames, setProviderNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +58,19 @@ export default function ReviewsPage() {
       }
       setToWrite(write);
       setSubmitted(done);
+
+      const names: Record<string, string> = {};
+      await Promise.all(
+        providerIds.map(async (id) => {
+          try {
+            const p = await getProvider(id);
+            names[id] = p.business_name || p.full_name;
+          } catch {
+            names[id] = 'Provider';
+          }
+        }),
+      );
+      setProviderNames(names);
       setError(null);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't load reviews.");
@@ -98,8 +113,15 @@ export default function ReviewsPage() {
             toWrite.map((b) => (
               <div key={b.id} className="surface flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
-                  <p className="font-display text-lg">{b.service_name}</p>
-                  <p className="font-sans text-small text-muted">{formatWhen(b.start_time)}</p>
+                  <Link
+                    href={'/providers/' + b.provider_id}
+                    className="font-display text-lg text-ink hover:text-teal hover:underline"
+                  >
+                    {providerNames[b.provider_id] || 'Provider'}
+                  </Link>
+                  <p className="mt-0.5 font-sans text-small text-muted">
+                    {b.service_name} · {formatWhen(b.start_time)}
+                  </p>
                 </div>
                 <Link href={'/bookings/' + b.id + '#review'}>
                   <Button size="sm">Write review</Button>
@@ -119,7 +141,15 @@ export default function ReviewsPage() {
             submitted.map(({ booking, review }) => (
               <div key={booking.id} className="surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-display text-lg">{booking.service_name}</p>
+                  <div>
+                    <Link
+                      href={'/providers/' + booking.provider_id}
+                      className="font-display text-lg text-ink hover:text-teal hover:underline"
+                    >
+                      {providerNames[booking.provider_id] || 'Provider'}
+                    </Link>
+                    <p className="mt-0.5 font-sans text-small text-muted">{booking.service_name}</p>
+                  </div>
                   <StarRating value={review.rating} readOnly size="sm" />
                 </div>
                 {review.comment ? (

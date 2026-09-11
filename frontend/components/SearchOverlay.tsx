@@ -337,7 +337,7 @@ export function SearchOverlay({
                           aria-selected={active}
                           className={
                             'w-full rounded-control px-2 py-2 text-left font-sans text-small transition-colors duration-fast ' +
-                            (active ? 'bg-teal-soft text-teal' : 'hover:bg-subtle')
+                            (active ? 'bg-teal-soft text-ink' : 'hover:bg-subtle')
                           }
                           onMouseEnter={() => setActiveIndex(idx)}
                           onClick={() => selectSuggestion(s)}

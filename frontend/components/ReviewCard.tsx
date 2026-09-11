@@ -53,7 +53,7 @@ export function ReviewCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <StarRating value={review.rating} readOnly size="sm" />
-            <span className="rounded-md bg-teal-soft px-2 py-0.5 font-sans text-caption font-semibold text-teal">
+            <span className="rounded-md bg-teal-soft px-2 py-0.5 font-sans text-caption font-semibold text-ink">
               Completed visit
             </span>
             <span className="font-sans text-caption text-muted">

@@ -80,7 +80,7 @@ export function ErrorBanner({
 export function SuccessBanner({ message }: { message: string }) {
   return (
     <div
-      className="rounded-card border border-teal/20 bg-teal-soft px-4 py-3 font-sans text-small text-teal"
+      className="rounded-card border border-teal/20 bg-teal-soft px-4 py-3 font-sans text-small text-ink"
       role="status"
       aria-live="polite"
     >

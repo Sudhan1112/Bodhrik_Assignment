@@ -51,6 +51,9 @@ export function BookingCard({
               {formatWhen(booking.start_time)}
             </span>
           </div>
+          {headline.detail ? (
+            <p className="mt-1.5 font-sans text-caption text-muted">{headline.detail}</p>
+          ) : null}
           <p className="mt-2 font-display text-xl font-medium text-ink">{booking.service_name}</p>
           {providerName ? (
             <p className="mt-1 font-sans text-small text-ink/80">{providerName}</p>
@@ -60,7 +63,6 @@ export function BookingCard({
             {mins && booking.price_cents != null ? ' · ' : null}
             {booking.price_cents != null ? formatMoney(booking.price_cents) : null}
           </p>
-          <p className="mt-2 font-sans text-caption text-muted">{headline.detail}</p>
         </div>
         <div className="flex flex-wrap gap-2 sm:justify-end">
           <Link href={primary.href}>
