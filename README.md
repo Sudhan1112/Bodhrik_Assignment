@@ -1,60 +1,62 @@
 # Ledger
 
-Premium service booking and review marketplace: discover providers, book real availability, review completed visits.
+Ledger is a service booking and review platform: providers publish services and weekly availability, customers request appointments, and completed visits can be reviewed. Redis backs a booking-list cache and a stub review-summarisation queue.
 
-## Stack
+## What it demonstrates
 
-- **API**: FastAPI, SQLAlchemy 2, Postgres, Redis, Alembic
-- **Worker**: Redis `BRPOP` review summarisation
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind
-- **Auth**: JWT bearer + bcrypt
+- FastAPI REST API with Postgres schema (users, bookings, reviews, services, availability)
+- Role-based access (`admin` / `provider` / `customer`) enforced in the API
+- Booking CRUD including DELETE
+- Redis caching (booking lists) and Redis-backed summarisation jobs + worker
+- Provider/customer booking lifecycle UI
+- Docker Compose end-to-end
+- Automated pytest suite and GitHub Actions (lint + tests)
 
-## Run with Docker
+## Quick start
 
 ```bash
 docker compose up --build
 ```
 
-Brings up Postgres, Redis, API (migrates + seeds demo data), worker, and frontend.
-
 - App: http://localhost:3000
 - API docs: http://localhost:8000/docs
+- Health: http://localhost:8000/health
 
-Demo logins after seed (password `password123` for all):
+## Demo accounts
+
+Password `password123` for all seeded users.
 
 - Customer: `guest@ledger.demo`
-- Provider (happy path): `maya@ledger.demo`
-- ~20 competitive providers across Austin/Houston salons, Austin clinics, and Dallas consulting — emails like `lena@ledger.demo`, `noah@ledger.demo`, `sofia@ledger.demo` (see `backend/scripts/seed.py`)
+- Provider: `maya@ledger.demo`
 
-## Backend tests
+Full list: [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md)
+
+## Documentation
+
+| Doc | Contents |
+|-----|----------|
+| [Written note](docs/WRITTEN_NOTE.md) | Mandatory 300–500 word assessment note |
+| [HLD](docs/HLD.md) | System architecture |
+| [LLD](docs/LLD.md) | Schema, RBAC, API map, Redis details |
+| [Setup](docs/SETUP.md) | Local + Docker setup, tests, troubleshooting |
+| [Docker](docs/DOCKER.md) | Compose services and ports |
+| [Tech stack](docs/TECH_STACK.md) | Libraries and infra in use |
+| [Product](docs/PRODUCT.md) | Customer/provider scope and non-features |
+| [User flows](docs/USER_FLOWS.md) | Mermaid UI/API flows |
+| [Repo structure](docs/REPO_STRUCTURE.md) | Directory map |
+| [Demo credentials](docs/DEMO_CREDENTIALS.md) | Seeded logins |
+
+## Tests
 
 ```bash
 cd backend
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-pip install -r requirements.txt
 # PowerShell: $env:ENV="test"
 pytest -q
 ruff check .
 ```
 
-## Seed locally
-
-```bash
-cd backend
-# with DATABASE_URL pointing at Postgres
-python -m scripts.seed
-```
-
-## Frontend
-
 ```bash
 cd frontend
-npm install
-# NEXT_PUBLIC_API_URL=http://localhost:8000
-npm run dev
+npm run lint
+npm run build
 ```
-
-## Design notes
-
-See [NOTES.md](NOTES.md).
