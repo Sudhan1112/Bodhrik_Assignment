@@ -119,8 +119,8 @@ export function DateSelector({
                   : unavailable
                     ? 'cursor-not-allowed border-border/60 bg-subtle text-muted line-through opacity-50'
                     : hasSlots && known
-                      ? 'border-teal/40 bg-white text-ink hover:border-teal'
-                      : 'border-border bg-white text-ink hover:border-teal')
+                      ? 'border-teal/40 bg-surface text-ink hover:border-teal'
+                      : 'border-border bg-surface text-ink hover:border-teal')
               }
             >
               <span className={'text-caption ' + (selected ? 'text-white/85' : 'text-muted')}>

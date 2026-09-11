@@ -114,7 +114,7 @@ export function TimeSlotGrid({
                     'rounded-control border px-2 py-2.5 font-sans text-small tabular-nums transition-all duration-fast ' +
                     (active
                       ? 'border-teal bg-teal font-semibold text-white'
-                      : 'border-border bg-white text-ink hover:border-teal')
+                      : 'border-border bg-surface text-ink hover:border-teal')
                   }
                 >
                   {formatTime(s.start_time)}

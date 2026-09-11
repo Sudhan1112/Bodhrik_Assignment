@@ -42,7 +42,7 @@ export default function ProviderProfilePage() {
 
   if (!ready || !user) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="mx-auto max-w-5xl space-y-4">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-40 w-full" />
       </div>
@@ -52,7 +52,7 @@ export default function ProviderProfilePage() {
   const title = provider?.business_name || user.business_name || user.full_name;
 
   return (
-    <div className="mx-auto max-w-3xl animate-fadeUp pb-8">
+    <div className="mx-auto max-w-5xl animate-fadeUp pb-8">
       <ProviderSubnav />
       <h1 className="type-h1">Profile</h1>
       <p className="mt-2 font-sans text-body text-muted">
@@ -72,7 +72,7 @@ export default function ProviderProfilePage() {
         </div>
       ) : (
         <>
-          <div className="mt-8 flex flex-wrap items-start gap-4 rounded-card border border-border bg-white p-5">
+          <div className="mt-8 flex flex-wrap items-start gap-4 rounded-card border border-border bg-surface p-5">
             <Avatar name={title} src={provider.avatar_url} size="xl" />
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-2xl font-medium">{title}</h2>
@@ -86,7 +86,7 @@ export default function ProviderProfilePage() {
             </div>
           </div>
 
-          <dl className="mt-6 divide-y divide-border rounded-card border border-border bg-white font-sans text-small">
+          <dl className="mt-6 divide-y divide-border rounded-card border border-border bg-surface font-sans text-small">
             <div className="px-4 py-3">
               <dt className="text-muted">Business name</dt>
               <dd className="mt-0.5">{provider.business_name || '—'}</dd>

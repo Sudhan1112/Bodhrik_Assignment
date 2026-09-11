@@ -20,7 +20,11 @@ Brings up Postgres, Redis, API (migrates + seeds demo data), worker, and fronten
 - App: http://localhost:3000
 - API docs: http://localhost:8000/docs
 
-Demo logins after seed: `maya@ledger.demo` / `guest@ledger.demo` (password `password123`).
+Demo logins after seed (password `password123` for all):
+
+- Customer: `guest@ledger.demo`
+- Provider (happy path): `maya@ledger.demo`
+- ~20 competitive providers across Austin/Houston salons, Austin clinics, and Dallas consulting — emails like `lena@ledger.demo`, `noah@ledger.demo`, `sofia@ledger.demo` (see `backend/scripts/seed.py`)
 
 ## Backend tests
 

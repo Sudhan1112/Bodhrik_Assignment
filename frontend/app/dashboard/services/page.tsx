@@ -122,7 +122,7 @@ export default function ProviderServicesPage() {
 
   if (!ready || !user) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="mx-auto max-w-5xl space-y-4">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-24 w-full" />
       </div>
@@ -130,7 +130,7 @@ export default function ProviderServicesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl animate-fadeUp pb-8">
+    <div className="mx-auto max-w-5xl animate-fadeUp pb-8">
       <ProviderSubnav />
       <h1 className="type-h1">Services</h1>
       <p className="mt-2 font-sans text-body text-muted">
@@ -148,7 +148,7 @@ export default function ProviderServicesPage() {
         </div>
       ) : null}
 
-      <section className="mt-8 rounded-card border border-border bg-white p-5">
+      <section className="mt-8 rounded-card border border-border bg-surface p-5">
         <h2 className="font-sans text-h3 font-semibold">Add a service</h2>
         <form onSubmit={onCreate} className="mt-4 space-y-3">
           <Input label="Name" required value={name} onChange={(e) => setName(e.target.value)} />

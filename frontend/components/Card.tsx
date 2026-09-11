@@ -13,7 +13,7 @@ export function Card({
   return (
     <div
       className={
-        'rounded-card border border-border bg-white ' +
+        'rounded-card border border-border bg-surface ' +
         (padded ? 'p-4 sm:p-5 ' : '') +
         (shadow ? 'shadow-soft ' : '') +
         className

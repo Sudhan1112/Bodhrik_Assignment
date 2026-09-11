@@ -126,7 +126,7 @@ export default function HomePage() {
             <Link
               key={chip.label + chip.href}
               href={chip.href}
-              className="rounded-full border border-border bg-white px-3 py-1 font-sans text-caption text-ink transition-colors duration-fast hover:border-teal hover:text-teal"
+              className="rounded-full border border-border bg-surface px-3 py-1 font-sans text-caption text-ink transition-colors duration-fast hover:border-teal hover:text-teal"
             >
               {chip.label}
             </Link>

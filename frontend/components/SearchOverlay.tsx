@@ -204,7 +204,7 @@ export function SearchOverlay({
         onClick={onClose}
       />
       <div
-        className="absolute inset-x-0 top-0 animate-fadeUp border-b border-border bg-white shadow-menu sm:inset-x-auto sm:left-1/2 sm:top-16 sm:w-full sm:max-w-xl sm:-translate-x-1/2 sm:rounded-card sm:border"
+        className="absolute inset-x-0 top-0 animate-fadeUp border-b border-border bg-surface shadow-menu sm:inset-x-auto sm:left-1/2 sm:top-16 sm:w-full sm:max-w-[45rem] sm:-translate-x-1/2 sm:rounded-card sm:border"
         role="dialog"
         aria-modal="true"
         aria-label="Search"
@@ -213,7 +213,7 @@ export function SearchOverlay({
           <label className="sr-only" htmlFor="ledger-search-overlay">
             Search
           </label>
-          <div className="flex items-center gap-2 rounded-control border border-border bg-white px-3 focus-within:border-teal focus-within:ring-2 focus-within:ring-teal/20">
+          <div className="focus-host flex items-center gap-2 rounded-control border border-border bg-surface px-3 focus-within:border-teal focus-within:ring-2 focus-within:ring-teal/20">
             <span aria-hidden className="text-muted">
               ⌕
             </span>

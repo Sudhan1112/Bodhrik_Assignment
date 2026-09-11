@@ -131,7 +131,7 @@ function BookingsInner() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 animate-fadeUp">
+      <div className="mx-auto max-w-4xl space-y-4 animate-fadeUp">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-72" />
         <div className="flex gap-2">
@@ -150,14 +150,14 @@ function BookingsInner() {
 
   if (error && !bookings.length) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-4xl">
         <ErrorBanner message={error} onRetry={() => void load()} />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl animate-fadeUp pb-8">
+    <div className="mx-auto max-w-4xl animate-fadeUp pb-8">
       <header>
         <h1 className="type-h1">Your bookings</h1>
         <p className="mt-2 font-sans text-body text-muted">
@@ -239,7 +239,7 @@ export default function BookingsPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-2xl space-y-4">
+        <div className="mx-auto max-w-4xl space-y-4">
           <Skeleton className="h-8 w-48" />
           <BookingCardSkeleton />
         </div>

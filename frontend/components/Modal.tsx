@@ -57,7 +57,7 @@ export function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="relative z-10 w-full max-w-md animate-scaleIn rounded-card border border-border bg-white p-5 shadow-menu outline-none"
+        className="relative z-10 w-full max-w-md animate-scaleIn rounded-card border border-border bg-surface p-5 shadow-menu outline-none"
       >
         <h2 id={titleId} className="font-sans text-h3 font-semibold text-ink">
           {title}

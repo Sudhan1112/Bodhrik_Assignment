@@ -8,8 +8,14 @@
   --subtle: #f5f5f5;
   --surface: #ffffff;
   --teal: #0c6b56;
+  --teal-dark: #085544;
+  --teal-soft: #e8f5f1;
   --border: #e5e5e5;
   --muted: #6b6b6b;
+  --coral: #c0392b;
+  --amber: #9a6700;
+  --sage: #3d6a55;
+  --shadow-ink: 17, 17, 17;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -21,6 +27,24 @@
   --space-12: 3rem;
   --radius-control: 0.625rem;
   --radius-card: 0.75rem;
+  color-scheme: light;
+}
+
+.dark {
+  --ink: #f2f2f0;
+  --canvas: #121212;
+  --subtle: #1c1c1c;
+  --surface: #181818;
+  --teal: #3d9b82;
+  --teal-dark: #2f826c;
+  --teal-soft: #14352c;
+  --border: #2e2e2e;
+  --muted: #a3a3a0;
+  --coral: #e5736a;
+  --amber: #d4a017;
+  --sage: #7a9e8c;
+  --shadow-ink: 0, 0, 0;
+  color-scheme: dark;
 }
 
 html,
@@ -32,6 +56,16 @@ body {
 *:focus-visible {
   outline: 2px solid var(--teal);
   outline-offset: 2px;
+}
+
+/**
+ * Components that own their focus styling (ring/border on a host)
+ * suppress the global outline on descendants to avoid double focus.
+ */
+.focus-host:focus-visible,
+.focus-host *:focus-visible {
+  outline: none;
+  outline-offset: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -46,7 +80,7 @@ body {
 
 @layer components {
   .shell {
-    @apply mx-auto w-full max-w-shell px-4 sm:px-6;
+    @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8;
   }
 
   .section-y {
@@ -86,11 +120,11 @@ body {
   }
 
   .surface {
-    @apply rounded-card border border-border bg-white;
+    @apply rounded-card border border-border bg-surface;
   }
 
   .card {
-    @apply rounded-card border border-border bg-white;
+    @apply rounded-card border border-border bg-surface;
   }
 
   .divider {

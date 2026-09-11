@@ -25,7 +25,7 @@ export function CompareTray() {
 
   return (
     <div className="fixed inset-x-0 bottom-16 z-40 px-3 md:bottom-4 md:px-6">
-      <div className="mx-auto flex max-w-shell animate-fadeUp items-center justify-between gap-3 rounded-card border border-border bg-white p-3 shadow-menu">
+      <div className="mx-auto flex max-w-shell animate-fadeUp items-center justify-between gap-3 rounded-card border border-border bg-surface p-3 shadow-menu">
         <div className="min-w-0">
           <p className="font-sans text-caption font-semibold text-muted">
             Compare · {items.length}/3

@@ -38,7 +38,7 @@ export default function AccountPage() {
         Sign-in details for Ledger. Account editing is not available through the current API.
       </p>
 
-      <dl className="mt-8 divide-y divide-border rounded-card border border-border bg-white">
+      <dl className="mt-8 divide-y divide-border rounded-card border border-border bg-surface">
         <div className="px-4 py-3">
           <dt className="font-sans text-caption text-muted">Name</dt>
           <dd className="mt-0.5 font-sans text-body">{user.full_name}</dd>
@@ -57,7 +57,7 @@ export default function AccountPage() {
         <p className="font-sans text-caption font-semibold uppercase tracking-wide text-muted">
           Shortcuts
         </p>
-        <ul className="mt-2 divide-y divide-border rounded-card border border-border bg-white font-sans text-small">
+        <ul className="mt-2 divide-y divide-border rounded-card border border-border bg-surface font-sans text-small">
           {isCustomer ? (
             <>
               <Li href="/bookings">Bookings</Li>

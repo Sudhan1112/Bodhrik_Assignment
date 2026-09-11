@@ -106,7 +106,7 @@ function BookingsInner() {
 
   if (!ready || !user) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="mx-auto max-w-5xl space-y-4">
         <Skeleton className="h-8 w-40" />
         <ProviderBookingCardSkeleton />
       </div>
@@ -114,7 +114,7 @@ function BookingsInner() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl animate-fadeUp pb-8">
+    <div className="mx-auto max-w-5xl animate-fadeUp pb-8">
       <ProviderSubnav />
       <h1 className="type-h1">Bookings</h1>
       <p className="mt-2 font-sans text-body text-muted">
@@ -179,7 +179,7 @@ export default function ProviderBookingsPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-3xl space-y-4">
+        <div className="mx-auto max-w-5xl space-y-4">
           <Skeleton className="h-8 w-40" />
           <ProviderBookingCardSkeleton />
         </div>

@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -9,23 +10,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: '#111111',
+        ink: 'var(--ink)',
         white: '#FFFFFF',
-        canvas: '#FAFAFA',
-        subtle: '#F5F5F5',
-        border: '#E5E5E5',
-        muted: '#6B6B6B',
-        teal: '#0C6B56',
-        'teal-dark': '#085544',
-        'teal-soft': '#E8F5F1',
-        coral: '#C0392B',
-        amber: '#9A6700',
+        canvas: 'var(--canvas)',
+        subtle: 'var(--subtle)',
+        border: 'var(--border)',
+        muted: 'var(--muted)',
+        teal: 'var(--teal)',
+        'teal-dark': 'var(--teal-dark)',
+        'teal-soft': 'var(--teal-soft)',
+        coral: 'var(--coral)',
+        amber: 'var(--amber)',
         // Compatibility aliases for existing pages
-        paper: '#FFFFFF',
-        surface: '#FFFFFF',
-        mist: '#F5F5F5',
-        ivory: '#FAFAFA',
-        sage: '#3D6A55',
+        paper: 'var(--surface)',
+        surface: 'var(--surface)',
+        mist: 'var(--subtle)',
+        ivory: 'var(--canvas)',
+        sage: 'var(--sage)',
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],
@@ -50,14 +51,14 @@ const config: Config = {
         card: '0.75rem',
       },
       maxWidth: {
-        shell: '72rem',
+        shell: '90rem',
         prose: '40rem',
       },
       boxShadow: {
-        soft: '0 1px 2px rgba(17, 17, 17, 0.04), 0 4px 12px rgba(17, 17, 17, 0.04)',
-        lift: '0 4px 16px rgba(17, 17, 17, 0.08)',
-        menu: '0 8px 24px rgba(17, 17, 17, 0.1)',
-        nav: '0 1px 0 rgba(17, 17, 17, 0.06)',
+        soft: '0 1px 2px rgba(var(--shadow-ink), 0.04), 0 4px 12px rgba(var(--shadow-ink), 0.04)',
+        lift: '0 4px 16px rgba(var(--shadow-ink), 0.08)',
+        menu: '0 8px 24px rgba(var(--shadow-ink), 0.1)',
+        nav: '0 1px 0 rgba(var(--shadow-ink), 0.06)',
       },
       transitionDuration: {
         fast: '160ms',

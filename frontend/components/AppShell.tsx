@@ -10,6 +10,7 @@ import { Button } from './Button';
 import { CompareTray } from './CompareTray';
 import { SearchInput } from './SearchInput';
 import { SearchOverlay } from './SearchOverlay';
+import { ThemeToggle } from './ThemeToggle';
 import { ToastProvider } from './Toast';
 
 function DesktopNavLink({
@@ -151,9 +152,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-white text-ink">
+      <div className="min-h-screen bg-surface text-ink">
         {!isAuthPage ? (
-          <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur-sm">
+          <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur-sm">
             <div className="shell flex h-14 items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-5">
                 <Link
@@ -195,6 +196,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 >
                   <span aria-hidden>⌕</span>
                 </button>
+                <ThemeToggle />
 
                 {!user ? (
                   <>
@@ -224,7 +226,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <div
                         id={menuId}
                         role="menu"
-                        className="absolute right-0 mt-2 w-56 animate-scaleIn overflow-hidden rounded-card border border-border bg-white py-1 shadow-menu"
+                        className="absolute right-0 mt-2 w-56 animate-scaleIn overflow-hidden rounded-card border border-border bg-surface py-1 shadow-menu"
                       >
                         <p className="border-b border-border px-3 py-2.5 font-sans text-caption text-muted">
                           {user.full_name}
@@ -326,7 +328,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {showBottomNav && isCustomer ? (
           <nav
-            className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white/95 backdrop-blur-sm md:hidden"
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur-sm md:hidden"
             aria-label="Mobile"
           >
             <div className="flex">
@@ -340,7 +342,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {showBottomNav && isProvider ? (
           <nav
-            className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white/95 backdrop-blur-sm md:hidden"
+            className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur-sm md:hidden"
             aria-label="Mobile"
           >
             <div className="flex">

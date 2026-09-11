@@ -81,7 +81,7 @@ export default function ProviderDashboardPage() {
 
   if (!ready || !user) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4">
+      <div className="mx-auto max-w-5xl space-y-4">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-10 w-full" />
         <ProviderBookingCardSkeleton />
@@ -95,7 +95,7 @@ export default function ProviderDashboardPage() {
   const needsSetup = serviceCount === 0 || !hasAvailability;
 
   return (
-    <div className="mx-auto max-w-3xl animate-fadeUp pb-8">
+    <div className="mx-auto max-w-5xl animate-fadeUp pb-8">
       <ProviderSubnav />
 
       <header className="flex flex-wrap items-end justify-between gap-4">

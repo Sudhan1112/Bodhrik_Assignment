@@ -8,7 +8,7 @@ import {
 } from 'react';
 
 const fieldBase =
-  'mt-1.5 w-full rounded-control border bg-white px-3.5 py-2.5 font-sans text-small text-ink placeholder:text-muted/70 transition-colors duration-fast focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/20 disabled:cursor-not-allowed disabled:bg-subtle disabled:opacity-60';
+  'mt-1.5 w-full rounded-control border bg-surface px-3.5 py-2.5 font-sans text-small text-ink placeholder:text-muted/70 transition-colors duration-fast focus-visible:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal/20 disabled:cursor-not-allowed disabled:bg-subtle disabled:opacity-60';
 
 type FieldExtras = {
   label?: string;
@@ -28,7 +28,7 @@ export function Input({
   const fieldId = id || autoId;
   const border = error ? 'border-coral' : 'border-border';
   return (
-    <div className="block">
+    <div className="focus-host block">
       {label ? (
         <label htmlFor={fieldId} className="font-sans text-small font-medium text-ink">
           {label}
@@ -68,7 +68,7 @@ export function Select({
   const fieldId = id || autoId;
   const border = error ? 'border-coral' : 'border-border';
   return (
-    <div className="block">
+    <div className="focus-host block">
       {label ? (
         <label htmlFor={fieldId} className="font-sans text-small font-medium text-ink">
           {label}
@@ -109,7 +109,7 @@ export function Textarea({
   const fieldId = id || autoId;
   const border = error ? 'border-coral' : 'border-border';
   return (
-    <div className="block">
+    <div className="focus-host block">
       {label ? (
         <label htmlFor={fieldId} className="font-sans text-small font-medium text-ink">
           {label}

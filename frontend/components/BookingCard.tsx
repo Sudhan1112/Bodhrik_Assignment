@@ -39,7 +39,7 @@ export function BookingCard({
   return (
     <article
       className={
-        'rounded-card border border-border bg-white p-4 transition-shadow duration-fast ' +
+        'rounded-card border border-border bg-surface p-4 transition-shadow duration-fast ' +
         (featured ? 'border-teal/30 shadow-soft' : '')
       }
     >
@@ -108,7 +108,7 @@ export function BookingCard({
 
 export function BookingCardSkeleton() {
   return (
-    <div className="rounded-card border border-border bg-white p-4" aria-hidden>
+    <div className="rounded-card border border-border bg-surface p-4" aria-hidden>
       <div className="h-5 w-24 animate-pulseSoft rounded bg-subtle" />
       <div className="mt-3 h-6 w-48 animate-pulseSoft rounded bg-subtle" />
       <div className="mt-2 h-4 w-32 animate-pulseSoft rounded bg-subtle" />

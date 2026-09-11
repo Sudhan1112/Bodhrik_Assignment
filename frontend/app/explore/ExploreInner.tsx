@@ -353,7 +353,7 @@ function ExploreInner() {
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[15rem_1fr]">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[17rem_1fr]">
         <aside className="hidden lg:block">
           <div className="sticky top-20 card p-4">{filtersBody}</div>
         </aside>
@@ -423,7 +423,7 @@ function ExploreInner() {
             aria-label="Close filters"
             onClick={() => setFiltersOpen(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white p-5 shadow-menu animate-fadeUp">
+          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-surface p-5 shadow-menu animate-fadeUp">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-sans text-h3 font-semibold">Filters</h2>
               <Button type="button" variant="ghost" size="sm" onClick={() => setFiltersOpen(false)}>

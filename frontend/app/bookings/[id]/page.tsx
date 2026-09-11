@@ -348,7 +348,7 @@ function BookingDetailInner() {
 
   if (error && !booking) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-4xl">
         <ErrorBanner message={error} onRetry={() => void load()} />
       </div>
     );
@@ -356,7 +356,7 @@ function BookingDetailInner() {
 
   if (!booking || !user) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4 animate-fadeUp">
+      <div className="mx-auto max-w-4xl space-y-4 animate-fadeUp">
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-40 w-full" />
@@ -385,7 +385,7 @@ function BookingDetailInner() {
     : '';
 
   return (
-    <div className="mx-auto max-w-2xl animate-fadeUp pb-28 sm:pb-8">
+    <div className="mx-auto max-w-4xl animate-fadeUp pb-28 sm:pb-8">
       <Link href="/bookings" className="font-sans text-small text-teal hover:underline">
         ← Bookings
       </Link>
@@ -419,7 +419,7 @@ function BookingDetailInner() {
         </div>
       </header>
 
-      <dl className="mt-6 grid gap-4 rounded-card border border-border bg-white p-5 font-sans text-small sm:grid-cols-2">
+      <dl className="mt-6 grid gap-4 rounded-card border border-border bg-surface p-5 font-sans text-small sm:grid-cols-2">
         <div>
           <dt className="text-muted">When</dt>
           <dd className="mt-1 font-medium">{formatWhen(booking.start_time)}</dd>
@@ -450,7 +450,7 @@ function BookingDetailInner() {
       </section>
 
       {rescheduleStep !== 'idle' && canReschedule ? (
-        <section className="mt-8 rounded-card border border-border bg-white p-5" aria-live="polite">
+        <section className="mt-8 rounded-card border border-border bg-surface p-5" aria-live="polite">
           <h2 className="type-h2">Reschedule request</h2>
           <p className="mt-1 font-sans text-small text-muted">
             Current: {formatWhen(booking.start_time)}. Status stays pending after you save.
@@ -553,7 +553,7 @@ function BookingDetailInner() {
       ) : null}
 
       {existingReview ? (
-        <section className="mt-8 rounded-card border border-border bg-white p-5" id="review">
+        <section className="mt-8 rounded-card border border-border bg-surface p-5" id="review">
           <h2 className="type-h2">Your review</h2>
           <div className="mt-3">
             <StarRating value={existingReview.rating} readOnly />
@@ -570,7 +570,7 @@ function BookingDetailInner() {
       ) : null}
 
       {canReview ? (
-        <section className="mt-8 rounded-card border border-border bg-white p-5" id="review">
+        <section className="mt-8 rounded-card border border-border bg-surface p-5" id="review">
           <h2 className="type-h2">How was your experience?</h2>
           <p className="mt-1 font-sans text-small text-muted">
             {formatWhen(booking.start_time)} · {booking.service_name}
@@ -644,7 +644,7 @@ function BookingDetailInner() {
 
       {/* Mobile sticky actions — sit above bottom nav */}
       {isCustomer && rescheduleStep === 'idle' ? (
-        <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-white/95 p-3 backdrop-blur sm:hidden">
+        <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-surface/95 p-3 backdrop-blur sm:hidden">
           <div className="flex flex-wrap gap-2">
             {canReschedule ? (
               <Button
@@ -705,7 +705,7 @@ export default function BookingDetailPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto max-w-2xl space-y-4">
+        <div className="mx-auto max-w-4xl space-y-4">
           <Skeleton className="h-10 w-64" />
           <Skeleton className="h-48 w-full" />
         </div>

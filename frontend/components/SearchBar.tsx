@@ -27,13 +27,15 @@ export function MarketplaceSearch({
     onSearch({ what: what.trim(), where: where.trim(), when });
   }
 
+  const fieldClass =
+    'focus-host block px-4 py-3 transition-colors duration-fast focus-within:bg-teal-soft/40';
+  const inputClass =
+    'mt-1 w-full bg-transparent font-sans text-small text-ink outline-none placeholder:text-muted/70';
+
   return (
     <form
       onSubmit={submit}
-      className={
-        'overflow-hidden rounded-card border border-border bg-white shadow-soft ' +
-        (compact ? '' : '')
-      }
+      className="overflow-hidden rounded-card border border-border bg-surface shadow-soft"
       aria-label="Search the marketplace"
     >
       <div
@@ -44,30 +46,30 @@ export function MarketplaceSearch({
             : 'md:grid-cols-[1.4fr_1fr_1fr_auto]')
         }
       >
-        <label className="block px-4 py-3">
+        <label className={fieldClass}>
           <span className="font-sans text-caption font-medium text-muted">What</span>
           <input
-            className="mt-1 w-full bg-transparent font-sans text-small text-ink outline-none placeholder:text-muted/70"
+            className={inputClass}
             placeholder="What service are you looking for?"
             value={what}
             onChange={(e) => setWhat(e.target.value)}
             onFocus={onFocusWhat}
           />
         </label>
-        <label className="block px-4 py-3">
+        <label className={fieldClass}>
           <span className="font-sans text-caption font-medium text-muted">Location</span>
           <input
-            className="mt-1 w-full bg-transparent font-sans text-small text-ink outline-none placeholder:text-muted/70"
+            className={inputClass}
             placeholder="City"
             value={where}
             onChange={(e) => setWhere(e.target.value)}
           />
         </label>
-        <label className="block px-4 py-3">
+        <label className={fieldClass}>
           <span className="font-sans text-caption font-medium text-muted">When</span>
           <input
             type="date"
-            className="mt-1 w-full bg-transparent font-sans text-small text-ink outline-none"
+            className={inputClass}
             value={when}
             onChange={(e) => setWhen(e.target.value)}
           />

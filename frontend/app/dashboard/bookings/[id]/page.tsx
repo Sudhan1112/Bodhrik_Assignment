@@ -163,7 +163,7 @@ export default function ProviderBookingDetailPage() {
 
   if (!ready || !user) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="mx-auto max-w-4xl space-y-4">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -172,7 +172,7 @@ export default function ProviderBookingDetailPage() {
 
   if (notFound) {
     return (
-      <div className="mx-auto max-w-2xl animate-fadeUp py-10 text-center">
+      <div className="mx-auto max-w-4xl animate-fadeUp py-10 text-center">
         <ProviderSubnav />
         <h1 className="type-h1">Booking not found</h1>
         <p className="mt-2 font-sans text-muted">This appointment may no longer be available.</p>
@@ -185,7 +185,7 @@ export default function ProviderBookingDetailPage() {
 
   if (error && !booking) {
     return (
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-4xl">
         <ProviderSubnav />
         <ErrorBanner message={error} onRetry={() => void load()} />
       </div>
@@ -194,7 +194,7 @@ export default function ProviderBookingDetailPage() {
 
   if (!booking) {
     return (
-      <div className="mx-auto max-w-2xl space-y-4">
+      <div className="mx-auto max-w-4xl space-y-4">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-48 w-full" />
@@ -207,7 +207,7 @@ export default function ProviderBookingDetailPage() {
   const isConfirmed = booking.status === 'confirmed';
 
   return (
-    <div className="mx-auto max-w-2xl animate-fadeUp pb-28 sm:pb-8">
+    <div className="mx-auto max-w-4xl animate-fadeUp pb-28 sm:pb-8">
       <ProviderSubnav />
       <Link href="/dashboard/bookings" className="font-sans text-small text-teal hover:underline">
         ← Bookings
@@ -236,7 +236,7 @@ export default function ProviderBookingDetailPage() {
         </div>
       </header>
 
-      <dl className="mt-6 grid gap-4 rounded-card border border-border bg-white p-5 font-sans text-small sm:grid-cols-2">
+      <dl className="mt-6 grid gap-4 rounded-card border border-border bg-surface p-5 font-sans text-small sm:grid-cols-2">
         <div>
           <dt className="text-muted">When</dt>
           <dd className="mt-1 font-medium">{formatWhen(booking.start_time)}</dd>
@@ -295,7 +295,7 @@ export default function ProviderBookingDetailPage() {
       </div>
 
       {(isPending || isConfirmed) && (
-        <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-white/95 p-3 backdrop-blur sm:hidden">
+        <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-surface/95 p-3 backdrop-blur sm:hidden">
           <div className="flex flex-wrap gap-2">
             {isPending ? (
               <>
