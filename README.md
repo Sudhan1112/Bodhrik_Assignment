@@ -31,6 +31,44 @@ Password `password123` for all seeded users.
 
 Full list: [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md)
 
+## Repository structure
+
+```text
+Bodhrik/
+├── backend/
+│   ├── app/                 # FastAPI: models, routers, rbac, cache, queue
+│   ├── alembic/             # Postgres migrations
+│   ├── scripts/             # Demo seed (idempotent by email)
+│   ├── tests/               # pytest (~34 tests)
+│   ├── worker/              # Redis BRPOP summarisation consumer
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── app/                 # Next.js App Router pages
+│   ├── components/          # Shared UI
+│   ├── lib/                 # API client, auth, discovery storage
+│   ├── Dockerfile
+│   └── package.json
+├── scripts/
+│   └── e2e-lifecycle.mjs    # API lifecycle smoke script
+├── docs/                    # Assessment + architecture docs
+├── .github/workflows/ci.yml # Ruff, pytest, frontend lint + build
+├── docker-compose.yml       # postgres, redis, api, worker, frontend
+├── NOTES.md                 # Redirect → docs/WRITTEN_NOTE.md
+└── README.md
+```
+
+| Area | Role |
+|------|------|
+| `backend/app` | REST API and domain logic |
+| `backend/worker` | Stub review summarisation consumer |
+| `backend/tests` | API / RBAC / Redis tests |
+| `frontend` | Customer and provider UI |
+| `docker-compose.yml` | Full local stack |
+| `docs/` | Written note, HLD, LLD, setup |
+
+More detail: [docs/REPO_STRUCTURE.md](docs/REPO_STRUCTURE.md)
+
 ## Documentation
 
 | Doc | Contents |
