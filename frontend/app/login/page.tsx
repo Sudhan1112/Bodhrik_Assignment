@@ -1,18 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FormEvent, Suspense, useState } from 'react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { ApiError, loginUser } from '@/lib/api';
 import { setSession } from '@/lib/auth';
 
-const SIDE =
-  'https://images.unsplash.com/photo-1633681926022-84c1035a3e0f?w=1200&q=80';
-
-export default function LoginPage() {
+function LoginInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
@@ -26,66 +24,81 @@ export default function LoginPage() {
     try {
       const res = await loginUser(email, password);
       setSession(res.access_token, res.user);
-      router.push('/dashboard');
+      const next = searchParams.get('next');
+      if (next && next.startsWith('/') && !next.startsWith('//')) {
+        router.push(next);
+      } else if (res.user.role === 'customer') {
+        router.push('/bookings');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Login failed');
+      setError(err instanceof ApiError ? err.message : 'Sign in failed');
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="mx-auto grid min-h-[70vh] max-w-5xl overflow-hidden rounded-3xl border border-border bg-white shadow-soft lg:grid-cols-2">
-      <div
-        className="relative hidden min-h-[420px] bg-cover bg-center lg:block"
-        style={{ backgroundImage: 'url(' + SIDE + ')' }}
-      >
-        <div className="absolute inset-0 bg-ink/55" />
-        <div className="relative flex h-full flex-col justify-end p-10 text-white">
-          <p className="font-display text-3xl">Welcome back</p>
-          <p className="mt-2 font-sans text-sm text-white/80">
-            Your appointments, reviews, and providers — in one calm place.
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col justify-center p-8 sm:p-12">
-        <h1 className="font-display text-3xl">Sign in</h1>
-        <p className="mt-2 font-sans text-sm text-muted">
-          No account?{' '}
-          <Link href="/register" className="text-teal hover:underline">
-            Register
-          </Link>
+    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md animate-fadeUp">
+        <Link href="/" className="font-display text-2xl font-medium text-ink">
+          Ledger
+        </Link>
+        <h1 className="type-h1 mt-8 text-[1.85rem]">Sign in</h1>
+        <p className="mt-2 font-sans text-small text-muted">
+          Book and manage your services in one place.
         </p>
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <Input
             label="Email"
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <div>
+          <div className="relative">
             <Input
               label="Password"
               type={show ? 'text' : 'password'}
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="button"
-              className="mt-1 font-sans text-xs text-teal"
+              className="absolute right-3 top-9 font-sans text-caption text-muted hover:text-ink"
               onClick={() => setShow((s) => !s)}
             >
-              {show ? 'Hide' : 'Show'} password
+              {show ? 'Hide' : 'Show'}
             </button>
           </div>
-          {error ? <p className="font-sans text-sm text-coral">{error}</p> : null}
-          <Button type="submit" disabled={busy} className="w-full">
-            {busy ? 'Signing in…' : 'Sign in'}
+          {error ? (
+            <p className="font-sans text-small text-coral" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <Button type="submit" loading={busy} className="w-full">
+            Sign in
           </Button>
         </form>
+        <p className="mt-6 font-sans text-small text-muted">
+          Don&apos;t have an account?{' '}
+          <Link href="/register" className="text-teal hover:underline">
+            Create one
+          </Link>
+        </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <LoginInner />
+    </Suspense>
   );
 }

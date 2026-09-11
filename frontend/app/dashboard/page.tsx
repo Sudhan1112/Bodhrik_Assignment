@@ -1,306 +1,236 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge } from '@/components/Badge';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ProviderBookingCard,
+  ProviderBookingCardSkeleton,
+} from '@/components/ProviderBookingCard';
+import { ProviderSubnav } from '@/components/ProviderSubnav';
 import { Button } from '@/components/Button';
-import { EmptyState, Skeleton } from '@/components/EmptyState';
-import { Input, Textarea } from '@/components/Input';
+import { EmptyState, ErrorBanner, Skeleton } from '@/components/EmptyState';
+import { ReviewCard } from '@/components/ReviewCard';
+import { StarRating } from '@/components/StarRating';
 import {
   ApiError,
-  createService,
-  formatMoney,
-  formatWhen,
+  getReviewStats,
   listBookings,
-  replaceMyAvailability,
-  summariseReviews,
-  updateBooking,
+  listProviderReviews,
+  listProviderServices,
+  getMyAvailability,
 } from '@/lib/api';
-import { getStoredUser, getToken } from '@/lib/auth';
-import type { Booking, User } from '@/lib/types';
+import { useProviderSession } from '@/lib/useProviderSession';
+import type { Booking, Review, ReviewStats } from '@/lib/types';
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+export default function ProviderDashboardPage() {
+  const { user, ready } = useProviderSession();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [stats, setStats] = useState<ReviewStats | null>(null);
+  const [serviceCount, setServiceCount] = useState(0);
+  const [hasAvailability, setHasAvailability] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const [svcName, setSvcName] = useState('');
-  const [svcMins, setSvcMins] = useState(60);
-  const [svcPrice, setSvcPrice] = useState(50);
-  const [svcDesc, setSvcDesc] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const u = getStoredUser();
-    if (!getToken() || !u) {
-      router.replace('/login');
-      return;
-    }
-    setUser(u);
+    if (!user) return;
+    setLoading(true);
     try {
-      setBookings(await listBookings());
+      const [list, revs, st, services, rules] = await Promise.all([
+        listBookings(),
+        listProviderReviews(user.id).catch(() => [] as Review[]),
+        getReviewStats(user.id).catch(() => null),
+        listProviderServices(user.id).catch(() => []),
+        getMyAvailability().catch(() => []),
+      ]);
+      setBookings(list);
+      setReviews(revs.slice(0, 3));
+      setStats(st);
+      setServiceCount(services.length);
+      setHasAvailability(rules.some((r) => r.is_active));
+      setError(null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to load');
+      setError(err instanceof ApiError ? err.message : 'Something went wrong loading your dashboard.');
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [user]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (ready && user) void load();
+  }, [ready, user, load]);
 
-  const now = Date.now();
-  const upcoming = useMemo(
-    () =>
-      bookings.filter(
-        (b) => new Date(b.start_time).getTime() >= now && b.status !== 'cancelled',
-      ),
-    [bookings, now],
-  );
-  const past = useMemo(
-    () =>
-      bookings.filter(
-        (b) => new Date(b.start_time).getTime() < now || b.status === 'cancelled',
-      ),
-    [bookings, now],
-  );
   const pending = useMemo(
-    () => bookings.filter((b) => b.status === 'pending'),
+    () =>
+      bookings
+        .filter((b) => b.status === 'pending')
+        .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()),
     [bookings],
   );
 
-  async function setStatus(
-    id: string,
-    status: 'confirmed' | 'completed' | 'cancelled' | 'no_show',
-  ) {
-    try {
-      await updateBooking(id, { status });
-      await load();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Update failed');
-    }
+  const upcoming = useMemo(() => {
+    const now = Date.now();
+    return bookings
+      .filter(
+        (b) =>
+          b.status === 'confirmed' && new Date(b.start_time).getTime() >= now,
+      )
+      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+      .slice(0, 5);
+  }, [bookings]);
+
+  if (!ready || !user) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-4">
+        <Skeleton className="h-8 w-56" />
+        <Skeleton className="h-10 w-full" />
+        <ProviderBookingCardSkeleton />
+      </div>
+    );
   }
 
-  async function onSummarise() {
-    if (!user) return;
-    try {
-      const res = await summariseReviews(user.id);
-      setMessage(
-        'Summarisation queued (job ' +
-          res.job_id.slice(0, 8) +
-          '…) for ' +
-          res.review_count +
-          ' review(s).',
-      );
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Summarise failed');
-    }
-  }
-
-  async function onAddService(e: FormEvent) {
-    e.preventDefault();
-    try {
-      await createService({
-        name: svcName,
-        duration_minutes: svcMins,
-        price_cents: Math.round(svcPrice * 100),
-        description: svcDesc || undefined,
-      });
-      setSvcName('');
-      setSvcDesc('');
-      setMessage('Service added.');
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not add service');
-    }
-  }
-
-  async function onDefaultHours() {
-    try {
-      const rules = [0, 1, 2, 3, 4].map((weekday) => ({
-        weekday,
-        start_time: '09:00:00',
-        end_time: '17:00:00',
-        is_active: true,
-      }));
-      await replaceMyAvailability(rules);
-      setMessage('Weekday hours set to 9:00–17:00.');
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not save hours');
-    }
-  }
-
-  if (loading || !user) {
-    return <Skeleton className="h-64 w-full" />;
-  }
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const name = (user.business_name || user.full_name).split(' ')[0];
+  const needsSetup = serviceCount === 0 || !hasAvailability;
 
   return (
-    <div className="animate-fadeUp">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="mx-auto max-w-3xl animate-fadeUp pb-8">
+      <ProviderSubnav />
+
+      <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-4xl">Dashboard</h1>
-          <p className="mt-1 font-sans text-sm text-muted">
-            {user.full_name} · {user.role}
+          <h1 className="type-h1">
+            {greeting}, {name}
+          </h1>
+          <p className="mt-2 font-sans text-body text-muted">
+            Manage requests, appointments, and your listing.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {user.role === 'customer' ? (
-            <Link href="/explore">
-              <Button>Find a provider</Button>
-            </Link>
-          ) : null}
-          {user.role === 'provider' ? (
-            <>
-              <Link href={'/providers/' + user.id}>
-                <Button variant="secondary">Public profile</Button>
-              </Link>
-              <Button variant="secondary" onClick={() => void onSummarise()}>
-                Summarise reviews
-              </Button>
-            </>
-          ) : null}
-        </div>
-      </div>
+        <Link href={'/providers/' + user.id}>
+          <Button variant="secondary">View public profile</Button>
+        </Link>
+      </header>
 
-      {message ? <p className="mt-4 font-sans text-sm text-sage">{message}</p> : null}
-      {error ? <p className="mt-4 font-sans text-sm text-coral">{error}</p> : null}
-
-      {user.role === 'provider' ? (
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <form onSubmit={onAddService} className="panel space-y-3 p-5">
-            <h2 className="font-display text-xl">Add a service</h2>
-            <Input label="Name" required value={svcName} onChange={(e) => setSvcName(e.target.value)} />
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Duration (min)"
-                type="number"
-                min={5}
-                value={svcMins}
-                onChange={(e) => setSvcMins(Number(e.target.value))}
-              />
-              <Input
-                label="Price ($)"
-                type="number"
-                min={0}
-                step={0.01}
-                value={svcPrice}
-                onChange={(e) => setSvcPrice(Number(e.target.value))}
-              />
-            </div>
-            <Textarea label="Description" rows={2} value={svcDesc} onChange={(e) => setSvcDesc(e.target.value)} />
-            <Button type="submit">Save service</Button>
-          </form>
-          <div className="panel p-5">
-            <h2 className="font-display text-xl">Availability</h2>
-            <p className="mt-2 font-sans text-sm text-muted">
-              Set weekday hours so customers see real open slots on your profile.
-            </p>
-            <Button className="mt-4" variant="secondary" onClick={() => void onDefaultHours()}>
-              Apply Mon–Fri 9–5
-            </Button>
-            {pending.length ? (
-              <p className="mt-6 font-sans text-sm text-amber-800">
-                {pending.length} pending request{pending.length === 1 ? '' : 's'} need a decision.
-              </p>
-            ) : null}
-          </div>
+      {error ? (
+        <div className="mt-4">
+          <ErrorBanner message={error} onRetry={() => void load()} />
         </div>
       ) : null}
 
-      <section className="mt-10">
-        <h2 className="font-display text-2xl">Upcoming</h2>
-        <div className="mt-4 space-y-3">
-          {upcoming.length === 0 ? (
-            <EmptyState
-              title="Nothing upcoming"
-              description={
-                user.role === 'customer'
-                  ? 'Browse providers and book an open slot.'
-                  : 'When customers request times, they will appear here.'
-              }
-              actionHref={user.role === 'customer' ? '/explore' : undefined}
-              actionLabel={user.role === 'customer' ? 'Explore' : undefined}
-            />
-          ) : (
-            upcoming.map((b) => (
-              <AppointmentRow
-                key={b.id}
-                booking={b}
-                user={user}
-                onStatus={setStatus}
-              />
-            ))
-          )}
+      {loading ? (
+        <div className="mt-8 space-y-3">
+          <ProviderBookingCardSkeleton />
+          <ProviderBookingCardSkeleton />
         </div>
-      </section>
+      ) : (
+        <>
+          {needsSetup ? (
+            <section className="mt-8 rounded-card border border-border bg-canvas px-5 py-5">
+              <h2 className="font-sans text-h3 font-semibold">Complete your provider setup</h2>
+              <ol className="mt-3 space-y-2 font-sans text-small text-muted">
+                <li className={serviceCount > 0 ? 'text-ink' : ''}>
+                  {serviceCount > 0 ? '✓' : '1.'}{' '}
+                  <Link href="/dashboard/services" className="text-teal hover:underline">
+                    Add your services
+                  </Link>
+                </li>
+                <li className={hasAvailability ? 'text-ink' : ''}>
+                  {hasAvailability ? '✓' : '2.'}{' '}
+                  <Link href="/dashboard/availability" className="text-teal hover:underline">
+                    Set your availability
+                  </Link>
+                </li>
+                <li>
+                  3.{' '}
+                  <Link href="/dashboard/profile" className="text-teal hover:underline">
+                    Review your public profile
+                  </Link>
+                </li>
+              </ol>
+            </section>
+          ) : null}
 
-      <section className="mt-10">
-        <h2 className="font-display text-2xl">Past</h2>
-        <div className="mt-4 space-y-3">
-          {past.length === 0 ? (
-            <p className="font-sans text-sm text-muted">No past bookings yet.</p>
-          ) : (
-            past.map((b) => (
-              <AppointmentRow key={b.id} booking={b} user={user} onStatus={setStatus} />
-            ))
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="type-h2">Booking requests</h2>
+              <Link
+                href="/dashboard/bookings?tab=requests"
+                className="font-sans text-small text-teal hover:underline"
+              >
+                View all
+              </Link>
+            </div>
+            {pending.length > 0 ? (
+              <p className="mt-1 font-sans text-small text-amber">
+                {pending.length} request{pending.length === 1 ? '' : 's'} need your attention
+              </p>
+            ) : null}
+            <div className="mt-4 space-y-3">
+              {pending.length === 0 ? (
+                <EmptyState
+                  title="No booking requests yet"
+                  description="When customers request appointments, they will appear here."
+                />
+              ) : (
+                pending.slice(0, 5).map((b) => <ProviderBookingCard key={b.id} booking={b} />)
+              )}
+            </div>
+          </section>
 
-function AppointmentRow({
-  booking,
-  user,
-  onStatus,
-}: {
-  booking: Booking;
-  user: User;
-  onStatus: (id: string, status: 'confirmed' | 'completed' | 'cancelled' | 'no_show') => void;
-}) {
-  return (
-    <div className="panel flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-      <Link href={'/bookings/' + booking.id} className="min-w-0 flex-1 hover:opacity-80">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge status={booking.status} />
-          <span className="font-sans text-xs text-muted">{formatWhen(booking.start_time)}</span>
-        </div>
-        <p className="mt-1 font-display text-lg">{booking.service_name}</p>
-        <p className="font-sans text-sm text-muted tabular-nums">
-          {formatMoney(booking.price_cents)}
-        </p>
-      </Link>
-      <div className="flex flex-wrap gap-2">
-        {user.role === 'customer' && booking.status === 'pending' ? (
-          <Button size="sm" variant="danger" onClick={() => onStatus(booking.id, 'cancelled')}>
-            Cancel
-          </Button>
-        ) : null}
-        {(user.role === 'provider' || user.role === 'admin') && booking.status === 'pending' ? (
-          <>
-            <Button size="sm" onClick={() => onStatus(booking.id, 'confirmed')}>
-              Confirm
-            </Button>
-            <Button size="sm" variant="danger" onClick={() => onStatus(booking.id, 'cancelled')}>
-              Decline
-            </Button>
-          </>
-        ) : null}
-        {(user.role === 'provider' || user.role === 'admin') && booking.status === 'confirmed' ? (
-          <>
-            <Button size="sm" onClick={() => onStatus(booking.id, 'completed')}>
-              Complete
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => onStatus(booking.id, 'no_show')}>
-              No-show
-            </Button>
-          </>
-        ) : null}
-      </div>
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="type-h2">Upcoming</h2>
+              <Link
+                href="/dashboard/bookings?tab=upcoming"
+                className="font-sans text-small text-teal hover:underline"
+              >
+                View all
+              </Link>
+            </div>
+            <div className="mt-4 space-y-3">
+              {upcoming.length === 0 ? (
+                <EmptyState
+                  title="No upcoming appointments"
+                  description="Confirmed appointments will appear here."
+                />
+              ) : (
+                upcoming.map((b) => (
+                  <ProviderBookingCard key={b.id} booking={b} featured={b === upcoming[0]} />
+                ))
+              )}
+            </div>
+          </section>
+
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="type-h2">Recent reviews</h2>
+              <Link href="/dashboard/reviews" className="font-sans text-small text-teal hover:underline">
+                View all
+              </Link>
+            </div>
+            {stats && stats.review_count > 0 ? (
+              <div className="mt-2 flex items-center gap-2 font-sans text-small">
+                <StarRating value={stats.average_rating || 0} readOnly size="sm" />
+                <span className="font-semibold tabular-nums">
+                  {(stats.average_rating || 0).toFixed(1)}
+                </span>
+                <span className="text-muted">· {stats.review_count} reviews</span>
+              </div>
+            ) : null}
+            <div className="mt-4">
+              {reviews.length === 0 ? (
+                <EmptyState
+                  title="No reviews yet"
+                  description="Your reviews will appear here after completed appointments."
+                />
+              ) : (
+                reviews.map((r) => <ReviewCard key={r.id} review={r} canReply />)
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

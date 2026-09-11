@@ -101,7 +101,12 @@ export function createBooking(payload: {
 
 export function updateBooking(
   id: string,
-  payload: Partial<{ status: BookingStatus; notes: string }>,
+  payload: Partial<{
+    status: BookingStatus;
+    notes: string;
+    start_time: string;
+    end_time: string;
+  }>,
 ): Promise<Booking> {
   return request<Booking>(
     '/bookings/' + id,
@@ -173,6 +178,27 @@ export function createService(payload: {
   return request<Service>('/services', { method: 'POST', body: JSON.stringify(payload) }, true);
 }
 
+export function updateService(
+  id: string,
+  payload: Partial<{
+    name: string;
+    description: string | null;
+    duration_minutes: number;
+    price_cents: number;
+    is_active: boolean;
+  }>,
+): Promise<Service> {
+  return request<Service>(
+    '/services/' + id,
+    { method: 'PATCH', body: JSON.stringify(payload) },
+    true,
+  );
+}
+
+export function deleteService(id: string): Promise<void> {
+  return request<void>('/services/' + id, { method: 'DELETE' }, true);
+}
+
 export function getMyAvailability(): Promise<AvailabilityRule[]> {
   return request<AvailabilityRule[]>('/providers/me/availability', {}, true);
 }
@@ -217,9 +243,10 @@ export function formatDuration(minutes: number): string {
   return m ? h + 'h ' + m + 'm' : h + 'h';
 }
 
+import { taxonomyTitleForProviderCategory } from './taxonomy';
+
 export function categoryLabel(c: string | null | undefined): string {
-  if (!c) return 'Service';
-  return c.charAt(0).toUpperCase() + c.slice(1);
+  return taxonomyTitleForProviderCategory(c);
 }
 
 export type { Provider };
